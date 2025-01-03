@@ -1,5 +1,6 @@
+use rustc_hash::FxHashMap;
 use std::borrow::Cow;
-use std::collections::{BTreeMap, HashMap};
+use std::collections::BTreeMap;
 use std::convert::AsRef;
 use std::fmt::{self, Debug, Formatter};
 use std::io::{Error as IoError, Write};
@@ -61,10 +62,10 @@ pub fn no_escape(data: &str) -> String {
 /// It maintains compiled templates and registered helpers.
 #[derive(Clone)]
 pub struct Registry<'reg> {
-    templates: HashMap<String, Template>,
+    templates: FxHashMap<String, Template>,
 
-    helpers: HashMap<String, Arc<dyn HelperDef + Send + Sync + 'reg>>,
-    decorators: HashMap<String, Arc<dyn DecoratorDef + Send + Sync + 'reg>>,
+    helpers: FxHashMap<String, Arc<dyn HelperDef + Send + Sync + 'reg>>,
+    decorators: FxHashMap<String, Arc<dyn DecoratorDef + Send + Sync + 'reg>>,
 
     escape_fn: EscapeFn,
     strict_mode: bool,
@@ -74,10 +75,10 @@ pub struct Registry<'reg> {
     pub(crate) engine: Arc<Engine>,
 
     template_sources:
-        HashMap<String, Arc<dyn Source<Item = String, Error = IoError> + Send + Sync + 'reg>>,
+        FxHashMap<String, Arc<dyn Source<Item = String, Error = IoError> + Send + Sync + 'reg>>,
     #[cfg(feature = "script_helper")]
     script_sources:
-        HashMap<String, Arc<dyn Source<Item = String, Error = IoError> + Send + Sync + 'reg>>,
+        FxHashMap<String, Arc<dyn Source<Item = String, Error = IoError> + Send + Sync + 'reg>>,
 }
 
 impl Debug for Registry<'_> {
@@ -148,10 +149,10 @@ impl Default for DirectorySourceOptions {
 impl<'reg> Registry<'reg> {
     pub fn new() -> Registry<'reg> {
         let r = Registry {
-            templates: HashMap::new(),
-            template_sources: HashMap::new(),
-            helpers: HashMap::new(),
-            decorators: HashMap::new(),
+            templates: FxHashMap::default(),
+            template_sources: FxHashMap::default(),
+            helpers: FxHashMap::default(),
+            decorators: FxHashMap::default(),
             escape_fn: Arc::new(html_escape),
             strict_mode: false,
             dev_mode: false,
@@ -666,7 +667,7 @@ impl<'reg> Registry<'reg> {
     /// **Note that** in dev mode, the template returned from this method may
     /// not reflect its latest state. This method doesn't try to reload templates
     /// from its source.
-    pub fn get_templates(&self) -> &HashMap<String, Template> {
+    pub fn get_templates(&self) -> &FxHashMap<String, Template> {
         &self.templates
     }
 

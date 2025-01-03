@@ -1,11 +1,12 @@
-use std::collections::{HashMap, VecDeque};
-use std::iter::Peekable;
-use std::str::FromStr;
-
 use pest::error::LineColLocation;
 use pest::iterators::Pair;
 use pest::{Parser, Position, Span};
+use rustc_hash::FxHashMap;
+
 use serde_json::value::Value as Json;
+use std::collections::VecDeque;
+use std::iter::Peekable;
+use std::str::FromStr;
 
 use crate::error::{TemplateError, TemplateErrorReason};
 use crate::grammar::{HandlebarsParser, Rule};
@@ -57,7 +58,7 @@ impl Subexpression {
     pub fn new(
         name: Parameter,
         params: Vec<Parameter>,
-        hash: HashMap<String, Parameter>,
+        hash: FxHashMap<String, Parameter>,
     ) -> Subexpression {
         Subexpression {
             element: Box::new(Expression(Box::new(HelperTemplate {
@@ -100,7 +101,7 @@ impl Subexpression {
         }
     }
 
-    pub fn hash(&self) -> Option<&HashMap<String, Parameter>> {
+    pub fn hash(&self) -> Option<&FxHashMap<String, Parameter>> {
         match *self.as_element() {
             Expression(ref ht) => Some(&ht.hash),
             _ => None,
@@ -120,7 +121,7 @@ pub enum BlockParam {
 pub struct ExpressionSpec {
     pub name: Parameter,
     pub params: Vec<Parameter>,
-    pub hash: HashMap<String, Parameter>,
+    pub hash: FxHashMap<String, Parameter>,
     #[builder(setter(strip_option), default)]
     pub block_param: Option<BlockParam>,
     pub omit_pre_ws: bool,
@@ -143,7 +144,7 @@ pub enum Parameter {
 pub struct HelperTemplate {
     pub name: Parameter,
     pub params: Vec<Parameter>,
-    pub hash: HashMap<String, Parameter>,
+    pub hash: FxHashMap<String, Parameter>,
     #[builder(setter(strip_option), default)]
     pub block_param: Option<BlockParam>,
     #[builder(setter(strip_option), default)]
@@ -193,7 +194,7 @@ impl HelperTemplate {
         HelperTemplate {
             name: Parameter::Path(path),
             params: Vec::with_capacity(5),
-            hash: HashMap::new(),
+            hash: FxHashMap::default(),
             block_param: None,
             template: None,
             inverse: None,
@@ -288,7 +289,7 @@ impl HelperTemplate {
 pub struct DecoratorTemplate {
     pub name: Parameter,
     pub params: Vec<Parameter>,
-    pub hash: HashMap<String, Parameter>,
+    pub hash: FxHashMap<String, Parameter>,
     #[builder(setter(strip_option), default)]
     pub template: Option<Template>,
     // for partial indent
@@ -506,7 +507,7 @@ impl Template {
         I: Iterator<Item = Pair<'a, Rule>>,
     {
         let mut params: Vec<Parameter> = Vec::new();
-        let mut hashes: HashMap<String, Parameter> = HashMap::new();
+        let mut hashes: FxHashMap<String, Parameter> = FxHashMap::default();
         let mut omit_pre_ws = false;
         let mut omit_pro_ws = false;
         let mut block_param = None;

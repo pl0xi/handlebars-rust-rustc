@@ -1,5 +1,4 @@
-use std::collections::HashMap;
-
+use rustc_hash::FxHashMap;
 use serde_json::value::Value as Json;
 
 use crate::block::BlockContext;
@@ -96,7 +95,7 @@ pub fn expand_partial<'reg: 'rc, 'rc>(
             .hash()
             .iter()
             .map(|(k, v)| (*k, v.value()))
-            .collect::<HashMap<&str, &Json>>();
+            .collect::<FxHashMap<&str, &Json>>();
 
         // create block if we didn't (no param provided for partial expression)
         if !block_created {

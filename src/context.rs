@@ -1,7 +1,7 @@
-use std::collections::{HashMap, VecDeque};
-
+use rustc_hash::FxHashMap;
 use serde::Serialize;
 use serde_json::value::{to_value, Map, Value as Json};
+use std::collections::VecDeque;
 
 use crate::block::{BlockContext, BlockParamHolder};
 use crate::error::{RenderError, RenderErrorReason};
@@ -10,7 +10,7 @@ use crate::json::path::{merge_json_path, PathSeg};
 use crate::json::value::ScopedJson;
 use crate::util::extend;
 
-pub type Object = HashMap<String, Json>;
+pub type Object = FxHashMap<String, Json>;
 
 /// The context wrap data you render on your templates.
 ///
@@ -141,7 +141,7 @@ fn get_in_block_params<'a>(
     None
 }
 
-pub(crate) fn merge_json(base: &Json, addition: &HashMap<&str, &Json>) -> Json {
+pub(crate) fn merge_json(base: &Json, addition: &FxHashMap<&str, &Json>) -> Json {
     let mut base_map = match base {
         Json::Object(ref m) => m.clone(),
         _ => Map::new(),
@@ -232,8 +232,9 @@ mod test {
     use crate::error::RenderError;
     use crate::json::path::Path;
     use crate::json::value::{self, ScopedJson};
+    use rustc_hash::FxHashMap;
     use serde_json::value::Map;
-    use std::collections::{HashMap, VecDeque};
+    use std::collections::VecDeque;
 
     fn navigate_from_root<'rc>(
         ctx: &'rc Context,
@@ -334,7 +335,7 @@ mod test {
     fn test_merge_json() {
         let map = json!({ "age": 4 });
         let s = "hello".to_owned();
-        let mut hash = HashMap::new();
+        let mut hash = FxHashMap::default();
         let v = value::to_json("h1");
         hash.insert("tag", &v);
 

@@ -1,4 +1,5 @@
-use std::collections::{BTreeMap, HashMap};
+use rustc_hash::FxHashMap;
+use std::collections::BTreeMap;
 
 use crate::context::Context;
 use crate::error::{RenderError, RenderErrorReason};
@@ -29,7 +30,7 @@ fn call_script_helper<'reg: 'rc, 'rc>(
     let hash: Dynamic = to_dynamic(
         hash.iter()
             .map(|(k, v)| ((*k).to_owned(), v.value()))
-            .collect::<HashMap<String, &Json>>(),
+            .collect::<FxHashMap<String, &Json>>(),
     )
     .map_err(RenderErrorReason::from)?;
 
